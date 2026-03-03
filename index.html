@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penti Sizing Widget</title>
+    <!-- Modern stylish font (Outfit) fitting the premium Penti look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Widget Container wrapper to simulate embed environment -->
+    <div class="widget-wrapper">
+        <div class="penti-widget">
+            
+            <!-- Header elements: Back button & Progress Indicator -->
+            <header class="widget-header">
+                <button class="icon-btn back-btn hidden" id="back-btn" aria-label="Go back">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <button class="icon-btn close-btn" aria-label="Close widget">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </header>
+
+            <!-- Main Content Area with Steps -->
+            <main class="steps-container" id="steps-container">
+
+                <!-- STEP 1: Intro & Baseline -->
+                <section class="step active" id="step-1" data-step="1">
+                    <div class="step-content">
+                        <h1 class="eyebrow">PENTI FIT STUDIO</h1>
+                        <h2 class="title">Bedeninizi Bulalım</h2>
+                        <p class="subtitle">Mezuraya gerek yok. Formunuza göre size en uygun sütyen bedenini bulmak için birkaç sorumuzu yanıtlayın.</p>
+                        
+                        <div class="input-group">
+                            <label for="height">Boyunuz (cm)</label>
+                            <div class="number-input-wrapper">
+                                <input type="number" id="height" placeholder="Örn: 165" min="140" max="210">
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="weight">Kilonuz (kg)</label>
+                            <div class="number-input-wrapper">
+                                <input type="number" id="weight" placeholder="Örn: 60" min="40" max="150">
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Yaşınız</label>
+                            <div class="age-pills">
+                                <button class="pill-btn age-btn" data-value="18-25">18-25</button>
+                                <button class="pill-btn age-btn" data-value="26-35">26-35</button>
+                                <button class="pill-btn age-btn" data-value="36-45">36-45</button>
+                                <button class="pill-btn age-btn" data-value="46+">46+</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 2: Torso Frame -->
+                <section class="step" id="step-2" data-step="2">
+                    <div class="step-content">
+                        <h2 class="title">Sırt & Göğüs Çevresi</h2>
+                        <p class="subtitle">Sürtünmeyi minimize etmek ve doğru destek sağlamak için kemik yapınız önemlidir. Size hangisi daha çok uyuyor?</p>
+                        
+                        <div class="visual-grid cols-3">
+                            <div class="card frame-card" data-value="narrow">
+                                <div class="card-img-wrapper">
+                                    <!-- Use absolute path to the generated artifacts -->
+                                    <img src="assets/torso_narrow_1772513277587.png" alt="Dar kemik yapısı">
+                                </div>
+                                <h3>Dar / İnce</h3>
+                                <p>Omuzlar ve sırt görece daha dardır.</p>
+                            </div>
+                            <div class="card frame-card" data-value="average">
+                                <div class="card-img-wrapper">
+                                    <img src="assets/torso_average_1772513291054.png" alt="Normal kemik yapısı">
+                                </div>
+                                <h3>Normal / Orantılı</h3>
+                                <p>Standart omuz genişliğine sahiptir.</p>
+                            </div>
+                            <div class="card frame-card" data-value="broad">
+                                <div class="card-img-wrapper">
+                                    <img src="assets/torso_broad_1772513301438.png" alt="Geniş kemik yapısı">
+                                </div>
+                                <h3>Geniş / Atletik</h3>
+                                <p>Sırt daha geniştir veya omuzlar geniştir.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 3: Pain Points -->
+                <section class="step" id="step-3" data-step="3">
+                    <div class="step-content">
+                        <h2 class="title">Mevcut Deneyim</h2>
+                        <p class="subtitle">Şu anda kullandığınız favori günlük sütyeninizde nasıl bir his var?</p>
+                        
+                        <div class="vertical-choices">
+                            <button class="choice-btn text-left" data-value="rides_up">
+                                <h4>Bandı sırttan yukarı kayıyor</h4>
+                                <p>Bu genellikle mevcut sütyenin bandının çok bol olduğunu gösterir.</p>
+                            </button>
+                            <button class="choice-btn text-left" data-value="digs_in">
+                                <h4>Bandı kaburgalarıma batıyor / iz bırakıyor</h4>
+                                <p>Bu genellikle bandın çok sıkı olduğunu gösterir.</p>
+                            </button>
+                            <button class="choice-btn text-left" data-value="spills_over">
+                                <h4>Bant rahat ama göğüsler taşıyor / boşluk yapıyor</h4>
+                                <p>Bant doğru olabilir, cup hacmine odaklanacağız.</p>
+                            </button>
+                            <button class="choice-btn text-left" data-value="perfect">
+                                <h4>Tam oluyor ama emin olmak istiyorum</h4>
+                                <p>Sadece doğrulamak için buradayım.</p>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 4: Breast Shape -->
+                <section class="step" id="step-4" data-step="4">
+                    <div class="step-content">
+                        <h2 class="title">Göğüs Formu</h2>
+                        <p class="subtitle">Doğru kalıbı ve cup hacmini bulmak için hacim dağılımını seçin.</p>
+                        
+                        <!-- Scrollable horizontal carousel to allow larger visuals -->
+                        <div class="visual-carousel">
+                            <div class="card shape-card" data-value="shallow">
+                                <div class="card-img-wrapper">
+                                    <img src="assets/breast_shallow_1772513376531.png" alt="Shallow shape">
+                                </div>
+                                <h3>Sığ (Shallow)</h3>
+                                <p>Üst kısımdaki hacim daha azdır, yumuşak bir eğime sahiptir.</p>
+                            </div>
+                            <div class="card shape-card" data-value="teardrop">
+                                <div class="card-img-wrapper">
+                                    <img src="assets/breast_teardrop_1772513394183.png" alt="Teardrop shape">
+                                </div>
+                                <h3>Damla (Teardrop)</h3>
+                                <p>Dolgunluk daha çok alt kısımdadır.</p>
+                            </div>
+                            <div class="card shape-card" data-value="round">
+                                <div class="card-img-wrapper">
+                                    <img src="assets/breast_round_1772513407294.png" alt="Round shape">
+                                </div>
+                                <h3>Yuvarlak</h3>
+                                <p>Hacim üstte ve altta eşit olarak dağılmıştır.</p>
+                            </div>
+                            <div class="card shape-card" data-value="bell">
+                                <div class="card-img-wrapper">
+                                    <img src="assets/breast_bell_1772513423333.png" alt="Bell shape">
+                                </div>
+                                <h3>Çan Şekli</h3>
+                                <p>Dolgunluk alt kısımda fazladır, görece daha ağırdır.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 5: Fit Preference -->
+                <section class="step" id="step-5" data-step="5">
+                    <div class="step-content centered">
+                        <h2 class="title">Beden Tercihi</h2>
+                        <p class="subtitle">İki beden arasında kalırsak, nasıl bir hissi tercih edersiniz?</p>
+                        
+                        <div class="toggle-container">
+                            <label class="toggle-option">
+                                <input type="radio" name="fitPref" value="relaxed" checked>
+                                <div class="toggle-card">
+                                    <div class="icon-wrap">☁️</div>
+                                    <h4>Rahat / Ev Tipi</h4>
+                                    <p>Bant biraz daha esnek, ferah</p>
+                                </div>
+                            </label>
+                            <label class="toggle-option">
+                                <input type="radio" name="fitPref" value="snug">
+                                <div class="toggle-card">
+                                    <div class="icon-wrap">🛡️</div>
+                                    <h4>Sıkı / Destekleyici</h4>
+                                    <p>Sımsıkı saran, toparlayıcı</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- LOADING SCREEN -->
+                <section class="step" id="step-loading" data-step="loading">
+                    <div class="step-content centered loading-content">
+                        <div class="spinner"></div>
+                        <h2 class="title">Bedeniniz Hesaplanıyor...</h2>
+                        <p class="subtitle" id="loading-text">Algoritma yanıtlarınızı değerlendiriyor</p>
+                    </div>
+                </section>
+
+                <!-- FINAL STEP: REVEAL -->
+                <section class="step" id="step-result" data-step="result">
+                    <div class="step-content centered result-content">
+                        <h1 class="eyebrow">İDEAL BEDENİNİZ</h1>
+                        
+                        <div class="result-display">
+                            <span class="size-result" id="final-size">75C</span>
+                        </div>
+                        
+                        <p class="justification-text" id="justification-text">
+                            Ağırlık dengeniz ve konfor tercihiniz göz önüne alındığında, 75 bandı ve C cup hacmi size en uygun tutuşu sağlayacaktır.
+                        </p>
+
+                        <div class="sister-size-box">
+                            <h4>Alternatif (Sister Size)</h4>
+                            <p>Eğer çok dar kalıplı bir sütyen denerseniz, <strong id="sister-size">80B</strong> bedeni sizin için harika bir alternatif olacaktır.</p>
+                        </div>
+
+                        <button class="primary-btn mt-6" onclick="window.location.reload()">Koleksiyonu İncele</button>
+                    </div>
+                </section>
+
+            </main>
+
+            <!-- Footer Action Area -->
+            <footer class="widget-footer">
+                <button class="primary-btn w-full disabled" id="next-btn">Devam Et</button>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- Injecting Logic Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
