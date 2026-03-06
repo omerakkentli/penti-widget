@@ -239,71 +239,155 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1200);
     }
 
+    // ===== PENTI OFFICIAL SIZING CHART =====
+    // Göğüs Altı Ölçüsü (cm) → Band | Kup Ölçüsü (bust cm) → Cup
+    const SIZE_CHART = {
+        70: { range: [68, 72], cups: { A: [82, 84], B: [84, 86], C: [86, 88], D: [88, 90] } },
+        75: { range: [73, 77], cups: { A: [87, 89], B: [89, 91], C: [91, 93], D: [93, 95], E: [95, 97] } },
+        80: { range: [78, 82], cups: { A: [92, 94], B: [94, 96], C: [96, 98], D: [98, 100], E: [100, 102] } },
+        85: { range: [83, 87], cups: { A: [97, 99], B: [99, 101], C: [101, 103], D: [103, 105], E: [105, 107] } },
+        90: { range: [88, 92], cups: { B: [104, 106], C: [106, 108], D: [108, 110], E: [110, 112] } },
+        95: { range: [93, 97], cups: { B: [109, 111], C: [111, 113], D: [113, 115], E: [115, 117] } },
+    };
+
+    const CUP_ORDER = ['A', 'B', 'C', 'D', 'E'];
+    const BAND_ORDER = [70, 75, 80, 85, 90, 95];
+
+    function findBandFromCm(underbustCm) {
+        // Find the band whose range contains the measurement
+        for (const band of BAND_ORDER) {
+            const [lo, hi] = SIZE_CHART[band].range;
+            if (underbustCm >= lo && underbustCm <= hi) return band;
+        }
+        // Fallback: snap to nearest band
+        let closest = BAND_ORDER[0];
+        let minDist = Infinity;
+        for (const band of BAND_ORDER) {
+            const mid = (SIZE_CHART[band].range[0] + SIZE_CHART[band].range[1]) / 2;
+            const dist = Math.abs(underbustCm - mid);
+            if (dist < minDist) { minDist = dist; closest = band; }
+        }
+        return closest;
+    }
+
+    function findCupFromChart(band, bustCm) {
+        const cups = SIZE_CHART[band]?.cups;
+        if (!cups) return 'B'; // fallback
+        for (const [cup, [lo, hi]] of Object.entries(cups)) {
+            if (bustCm >= lo && bustCm <= hi) return cup;
+        }
+        // Bust is between two ranges (e.g. exactly on a boundary) — find closest
+        let bestCup = Object.keys(cups)[0];
+        let minDist = Infinity;
+        for (const [cup, [lo, hi]] of Object.entries(cups)) {
+            const mid = (lo + hi) / 2;
+            const dist = Math.abs(bustCm - mid);
+            if (dist < minDist) { minDist = dist; bestCup = cup; }
+        }
+        return bestCup;
+    }
+
+    /**
+     * Sister Sizing (lingerie industry standard):
+     * Same cup VOLUME, different band tightness.
+     * - Tighter sister: band DOWN 5, cup UP 1 letter  (e.g. 85B → 80C)
+     * - Looser sister:  band UP 5,   cup DOWN 1 letter (e.g. 85B → 90A)
+     */
+    function getSisterSize(band, cup, direction) {
+        const cupIdx = CUP_ORDER.indexOf(cup);
+        if (cupIdx === -1) return null;
+
+        if (direction === 'tighter') {
+            const newBand = band - 5;
+            const newCupIdx = cupIdx + 1;
+            if (!BAND_ORDER.includes(newBand) || newCupIdx >= CUP_ORDER.length) return null;
+            const newCup = CUP_ORDER[newCupIdx];
+            // Verify this combination exists in the chart
+            if (SIZE_CHART[newBand]?.cups[newCup]) return `${newBand}${newCup}`;
+            return null;
+        } else {
+            const newBand = band + 5;
+            const newCupIdx = cupIdx - 1;
+            if (!BAND_ORDER.includes(newBand) || newCupIdx < 0) return null;
+            const newCup = CUP_ORDER[newCupIdx];
+            if (SIZE_CHART[newBand]?.cups[newCup]) return `${newBand}${newCup}`;
+            return null;
+        }
+    }
+
     function showResult() {
-        // Determine Size (Mock Logic)
         let baseBand = 75;
         let baseCup = 'B';
-        let sisterSize = '80A';
 
-        // PATH A: If user provided CM measurements directly, derive band & cup from those
+        // PATH A: CM measurements → exact chart lookup
         if (state.inputs.bandCm && state.inputs.bustCm) {
-            const bandCm = state.inputs.bandCm;
-            const bustCm = state.inputs.bustCm;
-            const diff = bustCm - bandCm;
-
-            // Round band to nearest 5
-            baseBand = Math.round(bandCm / 5) * 5;
-
-            // Cup from difference
-            if (diff < 11) baseCup = 'A';
-            else if (diff < 13) baseCup = 'AA';
-            else if (diff < 15) baseCup = 'B';
-            else if (diff < 17) baseCup = 'C';
-            else if (diff < 19) baseCup = 'D';
-            else if (diff < 21) baseCup = 'E';
-            else baseCup = 'F';
+            baseBand = findBandFromCm(state.inputs.bandCm);
+            baseCup = findCupFromChart(baseBand, state.inputs.bustCm);
         } else {
             // PATH B: Visual heuristic from weight + frame
-            if (state.inputs.weight > 65) {
-                baseBand = 80;
-                baseCup = 'C';
-                sisterSize = '85B';
-            }
-            if (state.inputs.weight > 80) {
-                baseBand = 85;
-                baseCup = 'D';
-                sisterSize = '90C';
-            }
-
+            if (state.inputs.weight > 65) { baseBand = 80; baseCup = 'C'; }
+            if (state.inputs.weight > 80) { baseBand = 85; baseCup = 'D'; }
             if (state.inputs.frame === 'broad') { baseBand += 5; }
             if (state.inputs.frame === 'narrow') { baseBand -= 5; }
+            // Clamp band to valid values
+            baseBand = BAND_ORDER.reduce((prev, curr) =>
+                Math.abs(curr - baseBand) < Math.abs(prev - baseBand) ? curr : prev
+            );
         }
 
-        if (state.inputs.painPoint === 'digs_in') { baseBand += 5; }
+        // Apply pain point modifier
+        if (state.inputs.painPoint === 'digs_in') {
+            const bandIdx = BAND_ORDER.indexOf(baseBand);
+            if (bandIdx < BAND_ORDER.length - 1) baseBand = BAND_ORDER[bandIdx + 1];
+        }
+        if (state.inputs.painPoint === 'rides_up') {
+            const bandIdx = BAND_ORDER.indexOf(baseBand);
+            if (bandIdx > 0) baseBand = BAND_ORDER[bandIdx - 1];
+        }
+
+        // Apply breast shape modifier (fuller shapes → cup up)
         if (state.inputs.shape === 'bell' || state.inputs.shape === 'round') {
-            baseCup = baseCup.length === 1
-                ? String.fromCharCode(baseCup.charCodeAt(0) + 1)
-                : baseCup; // skip if already multi-char like AA
+            const cupIdx = CUP_ORDER.indexOf(baseCup);
+            if (cupIdx !== -1 && cupIdx < CUP_ORDER.length - 1) {
+                baseCup = CUP_ORDER[cupIdx + 1];
+            }
         }
 
         let finalSize = `${baseBand}${baseCup}`;
 
-        if (state.inputs.fitPref === 'relaxed') {
-            sisterSize = `${baseBand - 5}${String.fromCharCode(baseCup.charCodeAt(0) + 1)}`;
+        // SISTER SIZE LOGIC:
+        // Show the OPPOSITE direction as alternative based on fit preference.
+        // If user chose "snug" → they want tight → show the LOOSER sister as fallback
+        // If user chose "relaxed" → they want comfort → show the TIGHTER sister as fallback
+        let sisterSize;
+        let sisterLabel;
+        if (state.inputs.fitPref === 'snug') {
+            sisterSize = getSisterSize(baseBand, baseCup, 'looser');
+            sisterLabel = 'Eğer çok sıkı hissederseniz';
         } else {
-            sisterSize = `${baseBand + 5}${String.fromCharCode(baseCup.charCodeAt(0) - 1)}`;
+            sisterSize = getSisterSize(baseBand, baseCup, 'tighter');
+            sisterLabel = 'Daha fazla destek isterseniz';
         }
-
-        // Handle negative cup chars visually
-        if (sisterSize.includes('@') || sisterSize.includes('?')) sisterSize = 'Alternatif Kalıp';
 
         // Update DOM
         document.getElementById('final-size').textContent = finalSize;
-        document.getElementById('sister-size').textContent = sisterSize;
+
+        const sisterSizeEl = document.getElementById('sister-size');
+        const sisterBox = document.querySelector('.sister-size-box');
+        const sisterCopy = document.getElementById('sister-copy');
+
+        if (sisterSize) {
+            sisterSizeEl.textContent = sisterSize;
+            sisterCopy.textContent = `${sisterLabel}, `;
+            sisterBox.style.display = 'block';
+        } else {
+            sisterBox.style.display = 'none';
+        }
 
         const justText = document.getElementById('justification-text');
         const prefText = state.inputs.fitPref === 'snug' ? 'sıkı ve destekleyici' : 'rahat ve esnek';
-        justText.textContent = `Ağırlık dengeniz ve ${prefText} bir his tercih etmeniz göz önüne alındığında, ${baseBand} bandı ve ${baseCup} cup hacmi size en uygun tutuşu sağlayacaktır.`;
+        const methodText = state.inputs.bandCm ? 'ölçümleriniz' : 'vücut yapınız';
+        justText.textContent = `${methodText.charAt(0).toUpperCase() + methodText.slice(1)} ve ${prefText} bir his tercih etmeniz göz önüne alındığında, ${baseBand} bandı ve ${baseCup} cup hacmi size en uygun tutuşu sağlayacaktır.`;
 
         // Switch Screen
         const loadingElement = document.getElementById('step-loading');
