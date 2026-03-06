@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,25 +11,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <!-- Widget Container wrapper to simulate embed environment -->
     <div class="widget-wrapper">
         <div class="penti-widget">
-            
+
             <!-- Header elements: Back button & Progress Indicator -->
             <header class="widget-header">
                 <button class="icon-btn back-btn hidden" id="back-btn" aria-label="Go back">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M15 18l-6-6 6-6"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 18l-6-6 6-6" />
                     </svg>
                 </button>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progress-fill"></div>
                 </div>
                 <button class="icon-btn close-btn" aria-label="Close widget">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 6L6 18M6 6l12 12"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6L6 18M6 6l12 12" />
                     </svg>
                 </button>
             </header>
@@ -41,8 +45,9 @@
                     <div class="step-content">
                         <h1 class="eyebrow">PENTI FIT STUDIO</h1>
                         <h2 class="title">Bedeninizi Bulalım</h2>
-                        <p class="subtitle">Mezuraya gerek yok. Formunuza göre size en uygun sütyen bedenini bulmak için birkaç sorumuzu yanıtlayın.</p>
-                        
+                        <p class="subtitle">Mezuraya gerek yok. Formunuza göre size en uygun sütyen bedenini bulmak için
+                            birkaç sorumuzu yanıtlayın.</p>
+
                         <div class="input-group">
                             <label for="height">Boyunuz (cm)</label>
                             <div class="number-input-wrapper">
@@ -73,12 +78,12 @@
                 <section class="step" id="step-2" data-step="2">
                     <div class="step-content">
                         <h2 class="title">Sırt & Göğüs Çevresi</h2>
-                        <p class="subtitle">Sürtünmeyi minimize etmek ve doğru destek sağlamak için kemik yapınız önemlidir. Size hangisi daha çok uyuyor?</p>
-                        
+                        <p class="subtitle">Sürtünmeyi minimize etmek ve doğru destek sağlamak için kemik yapınız
+                            önemlidir. Size hangisi daha çok uyuyor?</p>
+
                         <div class="visual-grid cols-3">
                             <div class="card frame-card" data-value="narrow">
                                 <div class="card-img-wrapper">
-                                    <!-- Use absolute path to the generated artifacts -->
                                     <img src="assets/torso_narrow_1772513277587.png" alt="Dar kemik yapısı">
                                 </div>
                                 <h3>Dar / İnce</h3>
@@ -99,6 +104,67 @@
                                 <p>Sırt daha geniştir veya omuzlar geniştir.</p>
                             </div>
                         </div>
+
+                        <!-- CM Measurement Alternative -->
+                        <div class="cm-toggle-section">
+                            <button class="cm-toggle-btn" id="cm-toggle-btn" type="button">
+                                <span>📏 Ölçülerinizi biliyorsanız</span>
+                                <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M6 9l6 6 6-6" />
+                                </svg>
+                            </button>
+
+                            <div class="cm-inputs-panel" id="cm-inputs-panel">
+                                <p class="cm-panel-hint">Mezura ile ölçüm yaptıysanız, sonuçlarınızı aşağıya girin. Bu
+                                    bilgi, görsel seçiminizin yerine geçecektir.</p>
+
+                                <div class="cm-input-row">
+                                    <div class="input-group compact">
+                                        <label for="band-cm">Bant Ölçüsü (cm)</label>
+                                        <div class="number-input-wrapper">
+                                            <input type="number" id="band-cm" placeholder="Örn: 78" min="60" max="120">
+                                        </div>
+                                    </div>
+                                    <div class="input-group compact">
+                                        <label for="bust-cm">Bust Ölçüsü (cm)</label>
+                                        <div class="number-input-wrapper">
+                                            <input type="number" id="bust-cm" placeholder="Örn: 95" min="70" max="140">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Collapsible How-to-Measure Guide -->
+                                <details class="measure-guide">
+                                    <summary>
+                                        <span class="guide-title">📖 Nasıl Ölçülür?</span>
+                                    </summary>
+                                    <div class="guide-content">
+                                        <div class="guide-columns">
+                                            <div class="guide-col">
+                                                <h5>Bant (Underbust)</h5>
+                                                <p>Desteksiz veya desteksiz ince bir sütyen giyin. Mezurayı göğüslerin
+                                                    hemen altına, kaburga hizasına sarın. Mezura sırtınızda düz olmalı,
+                                                    koltuk altlarından geçmeli ve göğüslerinizin birleştiği noktada
+                                                    buluşmalıdır. Nefes alıp verin; <strong>rahat ama sıkı</strong> bir
+                                                    ölçüm alın.</p>
+                                            </div>
+                                            <div class="guide-col">
+                                                <h5>Bust (Overbust)</h5>
+                                                <p>Aynı sütyen ile mezurayı göğüslerin <strong>en dolgun
+                                                        noktasından</strong> geçirin. Mezura sırtınızda bant hizasında
+                                                    düz kalmalıdır. Kollarınız aşağıda olmalı, mezura vücuttan
+                                                    ayrılmamalıdır. Nefes alıp verin; mezuranın kendi rahat konumuna
+                                                    oturmasını bekleyin.</p>
+                                            </div>
+                                        </div>
+                                        <p class="guide-tip">💡 <strong>İpucu:</strong> Aynanın önünde ölçüm yaparak
+                                            mezuranın sırtınızda düz kaldığından emin olun.</p>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -107,7 +173,7 @@
                     <div class="step-content">
                         <h2 class="title">Mevcut Deneyim</h2>
                         <p class="subtitle">Şu anda kullandığınız favori günlük sütyeninizde nasıl bir his var?</p>
-                        
+
                         <div class="vertical-choices">
                             <button class="choice-btn text-left" data-value="rides_up">
                                 <h4>Bandı sırttan yukarı kayıyor</h4>
@@ -134,7 +200,7 @@
                     <div class="step-content">
                         <h2 class="title">Göğüs Formu</h2>
                         <p class="subtitle">Doğru kalıbı ve cup hacmini bulmak için hacim dağılımını seçin.</p>
-                        
+
                         <!-- Scrollable horizontal carousel to allow larger visuals -->
                         <div class="visual-carousel">
                             <div class="card shape-card" data-value="shallow">
@@ -174,7 +240,7 @@
                     <div class="step-content centered">
                         <h2 class="title">Beden Tercihi</h2>
                         <p class="subtitle">İki beden arasında kalırsak, nasıl bir hissi tercih edersiniz?</p>
-                        
+
                         <div class="toggle-container">
                             <label class="toggle-option">
                                 <input type="radio" name="fitPref" value="relaxed" checked>
@@ -195,7 +261,7 @@
                         </div>
                     </div>
                 </section>
-                
+
                 <!-- LOADING SCREEN -->
                 <section class="step" id="step-loading" data-step="loading">
                     <div class="step-content centered loading-content">
@@ -209,18 +275,20 @@
                 <section class="step" id="step-result" data-step="result">
                     <div class="step-content centered result-content">
                         <h1 class="eyebrow">İDEAL BEDENİNİZ</h1>
-                        
+
                         <div class="result-display">
                             <span class="size-result" id="final-size">75C</span>
                         </div>
-                        
+
                         <p class="justification-text" id="justification-text">
-                            Ağırlık dengeniz ve konfor tercihiniz göz önüne alındığında, 75 bandı ve C cup hacmi size en uygun tutuşu sağlayacaktır.
+                            Ağırlık dengeniz ve konfor tercihiniz göz önüne alındığında, 75 bandı ve C cup hacmi size en
+                            uygun tutuşu sağlayacaktır.
                         </p>
 
                         <div class="sister-size-box">
                             <h4>Alternatif (Sister Size)</h4>
-                            <p>Eğer çok dar kalıplı bir sütyen denerseniz, <strong id="sister-size">80B</strong> bedeni sizin için harika bir alternatif olacaktır.</p>
+                            <p>Eğer çok dar kalıplı bir sütyen denerseniz, <strong id="sister-size">80B</strong> bedeni
+                                sizin için harika bir alternatif olacaktır.</p>
                         </div>
 
                         <button class="primary-btn mt-6" onclick="window.location.reload()">Koleksiyonu İncele</button>
@@ -240,4 +308,5 @@
     <!-- Injecting Logic Scripts -->
     <script src="script.js"></script>
 </body>
+
 </html>

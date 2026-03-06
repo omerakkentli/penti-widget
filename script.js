@@ -81,9 +81,64 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // PLACEHOLDER CLEAR ON FOCUS / RESTORE ON BLUR
+    document.querySelectorAll('.number-input-wrapper input').forEach(input => {
+        const originalPlaceholder = input.placeholder;
+        input.addEventListener('focus', () => { input.placeholder = ''; });
+        input.addEventListener('blur', () => {
+            if (!input.value) input.placeholder = originalPlaceholder;
+        });
+    });
+
+    // CM MEASUREMENT TOGGLE
+    const cmToggleBtn = document.getElementById('cm-toggle-btn');
+    const cmPanel = document.getElementById('cm-inputs-panel');
+    const bandCmInput = document.getElementById('band-cm');
+    const bustCmInput = document.getElementById('bust-cm');
+
+    cmToggleBtn.addEventListener('click', () => {
+        cmToggleBtn.classList.toggle('open');
+        cmPanel.classList.toggle('open');
+    });
+
+    // When user enters CM values, override the visual frame selection
+    function handleCmInput() {
+        const band = parseFloat(bandCmInput.value);
+        const bust = parseFloat(bustCmInput.value);
+
+        if (band && bust) {
+            // Store raw cm values in state
+            state.inputs.bandCm = band;
+            state.inputs.bustCm = bust;
+            // Deselect visual frame cards (CM takes priority)
+            frameCards.forEach(c => c.classList.remove('selected'));
+            state.inputs.frame = null; // will be derived from CM in the algorithm
+            enableNext();
+        } else {
+            state.inputs.bandCm = null;
+            state.inputs.bustCm = null;
+            // Re-validate: need either CM or visual selection
+            if (!state.inputs.frame) disableNext();
+        }
+    }
+
+    bandCmInput.addEventListener('input', handleCmInput);
+    bustCmInput.addEventListener('input', handleCmInput);
+
+    // If user selects a visual frame AFTER entering CM, clear CM inputs
+    frameCards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Clear CM inputs since user chose visual
+            bandCmInput.value = '';
+            bustCmInput.value = '';
+            state.inputs.bandCm = null;
+            state.inputs.bustCm = null;
+        });
+    });
+
     // NAVIGATION
     nextBtn.addEventListener('click', () => {
-        if(nextBtn.classList.contains('disabled')) return;
+        if (nextBtn.classList.contains('disabled')) return;
 
         if (state.currentStep === state.totalSteps) {
             calculateResult();
@@ -116,9 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function validateCurrentStep() {
-        switch(state.currentStep) {
+        switch (state.currentStep) {
             case 1: validateStep1(); break;
-            case 2: state.inputs.frame ? enableNext() : disableNext(); break;
+            case 2: (state.inputs.frame || (state.inputs.bandCm && state.inputs.bustCm)) ? enableNext() : disableNext(); break;
             case 3: state.inputs.painPoint ? enableNext() : disableNext(); break;
             case 4: state.inputs.shape ? enableNext() : disableNext(); break;
             case 5: state.inputs.fitPref ? enableNext() : disableNext(); break;
@@ -129,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Exit current
         const currentElement = document.getElementById(`step-${state.currentStep}`);
         currentElement.classList.remove('active');
-        if(stepNum > state.currentStep) {
+        if (stepNum > state.currentStep) {
             currentElement.classList.add('exit-left');
         }
 
@@ -177,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             const loadingText = document.getElementById('loading-text');
             loadingText.textContent = "Hacim kalibrasyonu tamamlanıyor...";
-            
+
             setTimeout(() => {
                 showResult();
             }, 1200);
@@ -190,36 +245,57 @@ document.addEventListener('DOMContentLoaded', () => {
         let baseCup = 'B';
         let sisterSize = '80A';
 
-        // Very basic logic demonstration matching the backend JSON schema map
-        if (state.inputs.weight > 65) {
-            baseBand = 80;
-            baseCup = 'C';
-            sisterSize = '85B';
-        }
-        if (state.inputs.weight > 80) {
-            baseBand = 85;
-            baseCup = 'D';
-            sisterSize = '90C';
-        }
+        // PATH A: If user provided CM measurements directly, derive band & cup from those
+        if (state.inputs.bandCm && state.inputs.bustCm) {
+            const bandCm = state.inputs.bandCm;
+            const bustCm = state.inputs.bustCm;
+            const diff = bustCm - bandCm;
 
-        if (state.inputs.frame === 'broad') { baseBand += 5; }
-        if (state.inputs.frame === 'narrow') { baseBand -= 5; }
+            // Round band to nearest 5
+            baseBand = Math.round(bandCm / 5) * 5;
+
+            // Cup from difference
+            if (diff < 11) baseCup = 'A';
+            else if (diff < 13) baseCup = 'AA';
+            else if (diff < 15) baseCup = 'B';
+            else if (diff < 17) baseCup = 'C';
+            else if (diff < 19) baseCup = 'D';
+            else if (diff < 21) baseCup = 'E';
+            else baseCup = 'F';
+        } else {
+            // PATH B: Visual heuristic from weight + frame
+            if (state.inputs.weight > 65) {
+                baseBand = 80;
+                baseCup = 'C';
+                sisterSize = '85B';
+            }
+            if (state.inputs.weight > 80) {
+                baseBand = 85;
+                baseCup = 'D';
+                sisterSize = '90C';
+            }
+
+            if (state.inputs.frame === 'broad') { baseBand += 5; }
+            if (state.inputs.frame === 'narrow') { baseBand -= 5; }
+        }
 
         if (state.inputs.painPoint === 'digs_in') { baseBand += 5; }
         if (state.inputs.shape === 'bell' || state.inputs.shape === 'round') {
-            baseCup = String.fromCharCode(baseCup.charCodeAt(0) + 1); // C -> D
+            baseCup = baseCup.length === 1
+                ? String.fromCharCode(baseCup.charCodeAt(0) + 1)
+                : baseCup; // skip if already multi-char like AA
         }
 
         let finalSize = `${baseBand}${baseCup}`;
 
         if (state.inputs.fitPref === 'relaxed') {
-            sisterSize = `${baseBand-5}${String.fromCharCode(baseCup.charCodeAt(0) + 1)}`;
+            sisterSize = `${baseBand - 5}${String.fromCharCode(baseCup.charCodeAt(0) + 1)}`;
         } else {
-            sisterSize = `${baseBand+5}${String.fromCharCode(baseCup.charCodeAt(0) - 1)}`;
+            sisterSize = `${baseBand + 5}${String.fromCharCode(baseCup.charCodeAt(0) - 1)}`;
         }
 
         // Handle negative cup chars visually
-        if(sisterSize.includes('@') || sisterSize.includes('?')) sisterSize = 'Alternatif Kalıp';
+        if (sisterSize.includes('@') || sisterSize.includes('?')) sisterSize = 'Alternatif Kalıp';
 
         // Update DOM
         document.getElementById('final-size').textContent = finalSize;
